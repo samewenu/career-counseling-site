@@ -2,7 +2,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/Button";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 
 export function Navbar() {
   const router = useRouter();
@@ -17,12 +18,35 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = [
+  const { data: session } = useSession();
+
+  const publicLinks = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Services", href: "/services" },
     { name: "Testimonials", href: "/testimonials" },
+    { name: "Contact", href: "/contact" },
   ];
+
+  const studentLinks = [
+    { name: "Dashboard", href: "/app/dashboard" },
+    { name: "Sessions", href: "/app/sessions" },
+    { name: "Assignments", href: "/app/assignments" },
+  ];
+
+  const coachLinks = [
+    { name: "Admin Dashboard", href: "/admin/dashboard" },
+    { name: "Users", href: "/admin/users" },
+    { name: "Sessions", href: "/admin/sessions" },
+    { name: "Assignments", href: "/admin/assignments" },
+  ];
+
+  let navLinks = publicLinks;
+  if (session?.user?.role === "STUDENT") {
+    navLinks = studentLinks;
+  } else if (session?.user?.role === "COACH") {
+    navLinks = coachLinks;
+  }
 
   return (
     <header
@@ -46,17 +70,31 @@ export function Navbar() {
               key={link.name}
               href={link.href}
               className={`text-sm font-medium transition-colors hover:text-accent-500 ${
-                router.pathname === link.href
-                  ? "text-accent-500 hidden" // hidden instead of bold? No wait, just bold. Wait, I will fix this line below.
-                  : "text-slate-600"
+                router.pathname.startsWith(link.href) && link.href !== "/"
+                  ? "text-accent-500" 
+                  : router.pathname === "/" && link.href === "/" ? "text-accent-500" : "text-slate-600"
               }`}
             >
               {link.name}
             </Link>
           ))}
-          <Link href="/contact">
-            <Button variant="primary">Book a Session</Button>
-          </Link>
+          {!session ? (
+            <div className="flex items-center gap-4">
+              <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-accent-500">
+                Login
+              </Link>
+              <Link href="/signup" className="text-sm font-medium text-slate-600 hover:text-accent-500">
+                Sign Up
+              </Link>
+              <Link href="/contact">
+                <Button variant="primary">Book a Session</Button>
+              </Link>
+            </div>
+          ) : (
+            <Button variant="outline" onClick={() => signOut({ callbackUrl: '/' })} className="flex items-center gap-2">
+              <LogOut size={16} /> Logout
+            </Button>
+          )}
         </nav>
 
         {/* Mobile Nav Toggle */}
@@ -78,19 +116,33 @@ export function Navbar() {
               href={link.href}
               onClick={() => setIsMobileMenuOpen(false)}
               className={`text-base font-medium p-2 rounded-md ${
-                router.pathname === link.href
+                router.pathname.startsWith(link.href) && link.href !== "/"
                   ? "bg-primary-50 text-primary-900"
-                  : "text-slate-600"
+                  : router.pathname === "/" && link.href === "/" ? "bg-primary-50 text-primary-900" : "text-slate-600"
               }`}
             >
               {link.name}
             </Link>
           ))}
-          <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)}>
-            <Button variant="primary" className="w-full">
-              Book a Session
+          {!session ? (
+            <>
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium p-2 rounded-md text-slate-600">
+                Login
+              </Link>
+              <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium p-2 rounded-md text-slate-600">
+                Sign Up
+              </Link>
+              <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="primary" className="w-full">
+                  Book a Session
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <Button variant="outline" onClick={() => signOut({ callbackUrl: '/' })} className="w-full flex items-center justify-center gap-2">
+              <LogOut size={18} /> Logout
             </Button>
-          </Link>
+          )}
         </div>
       )}
     </header>

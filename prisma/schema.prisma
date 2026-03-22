@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String       @id @default(cuid())
+  name            String?
+  email           String       @unique
+  password        String?
+  role            String       @default("STUDENT")
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  assignments     Assignment[] @relation("CoachAssignments")
+  studentSessions Session[]    @relation("StudentSessions")
+  coachSessions   Session[]    @relation("CoachSessions")
+  submissions     Submission[] @relation("StudentSubmissions")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  coachId   String
+  studentId String?
+  date      DateTime
+  status    String   @default("AVAILABLE")
+  createdAt DateTime @default(now())
+  student   User?    @relation("StudentSessions", fields: [studentId], references: [id])
+  coach     User     @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
+}
+
+model Assignment {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  dueDate     DateTime?
+  coachId     String
+  createdAt   DateTime     @default(now())
+  coach       User         @relation("CoachAssignments", fields: [coachId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+}
+
+model Submission {
+  id           String     @id @default(cuid())
+  assignmentId String
+  studentId    String
+  textContent  String?
+  fileUrl      String?
+  status       String     @default("PENDING")
+  feedback     String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  student      User       @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+}
