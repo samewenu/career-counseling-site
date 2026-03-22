@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Award, Briefcase, GraduationCap } from "lucide-react";
 
@@ -67,10 +68,13 @@ export default function About() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <div className="aspect-[3/4] rounded-2xl bg-slate-200 overflow-hidden shadow-xl relative">
-                <div className="absolute inset-0 flex items-center justify-center text-slate-400">
-                  [Professional Portrait]
-                </div>
+              <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-xl relative">
+                <Image 
+                  src="/portrait.png" 
+                  alt="James Agbalumo - Career Strategist" 
+                  fill 
+                  className="object-cover"
+                />
               </div>
             </motion.div>
             

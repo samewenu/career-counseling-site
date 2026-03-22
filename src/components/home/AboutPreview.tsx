@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 export function AboutPreview() {
@@ -14,10 +15,13 @@ export function AboutPreview() {
             transition={{ duration: 0.6 }}
             className="relative"
           >
-            <div className="aspect-[4/5] max-w-md mx-auto rounded-2xl overflow-hidden shadow-xl bg-slate-200 relative">
-               <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-lg">
-                 [Professional Image]
-               </div>
+            <div className="aspect-[4/5] max-w-md mx-auto rounded-2xl overflow-hidden shadow-xl relative">
+               <Image 
+                 src="/portrait.png" 
+                 alt="James Agbalumo - Career Strategist" 
+                 fill 
+                 className="object-cover"
+               />
             </div>
             {/* Decorative element */}
             <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-accent-100 rounded-full z-[-1]" />
